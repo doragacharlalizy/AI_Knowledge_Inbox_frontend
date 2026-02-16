@@ -233,19 +233,19 @@ const QueryLogs=()=> {
               </AnswerPreview>
 
               <MetaGrid>
-                <MetaItem>
+                {/* <MetaItem>
                   <MetaLabel>
                     <FiFileText size={12} /> Sources
                   </MetaLabel>
                   <MetaValue>{log.sources?.length || 0}</MetaValue>
-                </MetaItem>
+                </MetaItem> */}
 
-                <MetaItem>
+                {/* <MetaItem>
                   <MetaLabel>
                     <FiZap size={12} /> Speed
                   </MetaLabel>
                   <MetaValue>{log.processing_time_ms}ms</MetaValue>
-                </MetaItem>
+                </MetaItem> */}
 
                 <MetaItem>
                   <MetaLabel>
