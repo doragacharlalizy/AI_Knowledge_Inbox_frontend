@@ -1,25 +1,20 @@
-// src/store/useStore.js
-// Global State Management using Zustand - FIXED
+
 
 import { create } from 'zustand';
 import { contentAPI, chunkAPI, queryAPI, handleApiError } from '../services/api';
 
 export const useStore = create((set, get) => ({
-  // =========================================================================
-  // CONTENT STATE
-  // =========================================================================
+
   content: [],
   selectedContent: null,
   contentLoading: false,
   contentError: null,
   contentStats: null,
 
-  // Fetch all content
   fetchContent: async (filters = {}) => {
     set({ contentLoading: true, contentError: null });
     try {
       const response = await contentAPI.list(filters);
-      // Handle both direct array and paginated response
       const contentData = response.data.results || response.data;
       const stats = response.data.stats || null;
       
@@ -36,7 +31,6 @@ export const useStore = create((set, get) => ({
     }
   },
 
-  // Fetch single content
   fetchContentDetail: async (id) => {
     set({ contentLoading: true, contentError: null });
     try {
@@ -51,14 +45,12 @@ export const useStore = create((set, get) => ({
     }
   },
 
-  // Create content (note or URL)
   createContent: async (data) => {
     set({ contentLoading: true, contentError: null });
     try {
       const response = await contentAPI.create(data);
       const newContent = response.data;
       
-      // ✅ FIX: Ensure content is an array before spreading
       set((state) => {
         const currentContent = Array.isArray(state.content) ? state.content : [];
         return {
@@ -78,7 +70,6 @@ export const useStore = create((set, get) => ({
     }
   },
 
-  // Update content
   updateContent: async (id, data) => {
     try {
       const response = await contentAPI.update(id, data);
@@ -98,7 +89,6 @@ export const useStore = create((set, get) => ({
     }
   },
 
-  // Delete content
   deleteContent: async (id) => {
     try {
       await contentAPI.delete(id);
@@ -117,7 +107,6 @@ export const useStore = create((set, get) => ({
     }
   },
 
-  // Fetch statistics
   fetchStats: async () => {
     try {
       const response = await contentAPI.getStats();
@@ -128,14 +117,11 @@ export const useStore = create((set, get) => ({
     }
   },
 
-  // =========================================================================
-  // CHUNK STATE
-  // =========================================================================
+
   chunks: [],
   chunksLoading: false,
   chunksError: null,
 
-  // Fetch chunks
   fetchChunks: async (contentId = null) => {
     set({ chunksLoading: true, chunksError: null });
     try {
@@ -152,9 +138,7 @@ export const useStore = create((set, get) => ({
     }
   },
 
-  // =========================================================================
-  // QUERY STATE
-  // =========================================================================
+
   queryResult: null,
   queryLogs: [],
   queryLoading: false,
@@ -162,7 +146,6 @@ export const useStore = create((set, get) => ({
   logsLoading: false,
   queryStats: { total: 0, limit: 20, offset: 0 },
 
-  // Ask a question
   askQuestion: async (question, contentId = null, topK = 5) => {
     set({ queryLoading: true, queryError: null });
     try {
@@ -182,7 +165,6 @@ export const useStore = create((set, get) => ({
     }
   },
 
-  // Fetch query logs
   fetchQueryLogs: async (limit = 20, offset = 0) => {
     set({ logsLoading: true, queryError: null });
     try {
@@ -207,7 +189,6 @@ export const useStore = create((set, get) => ({
     }
   },
 
-  // Fetch single query log
   fetchQueryLog: async (id) => {
     try {
       const response = await queryAPI.getLog(id);
@@ -218,27 +199,20 @@ export const useStore = create((set, get) => ({
     }
   },
 
-  // Clear query result
   clearQueryResult: () => set({ queryResult: null }),
 
-  // =========================================================================
-  // UI STATE
-  // =========================================================================
+
   sidebarOpen: true,
   toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
 
-  // =========================================================================
-  // UTILITY METHODS
-  // =========================================================================
 
-  // Clear all errors
+
   clearErrors: () => set({
     contentError: null,
     chunksError: null,
     queryError: null,
   }),
 
-  // Reset all state
   resetStore: () => set({
     content: [],
     selectedContent: null,

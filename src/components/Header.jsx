@@ -55,11 +55,11 @@ function Header({ onMenuClick }) {
       <MenuButton onClick={onMenuClick}>
         <FiMenu />
       </MenuButton>
-
+{/* 
       <SearchBar>
         <FiSearch color="#6b7280" />
         <input type="text" placeholder="Search content..." />
-      </SearchBar>
+      </SearchBar> */}
 
       <div>
         <span style={{ color: '#666' }}>RAG Inbox</span>

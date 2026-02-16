@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import useStore from '../store/store';
 import { toast } from 'react-toastify';
-import { FiSend, FiChevronDown } from 'react-icons/fi';
+import { FiSend, FiChevronDown, FiClock, FiZap, FiFileText } from 'react-icons/fi';
 
 const PageContainer = styled.div`
   display: flex;
@@ -176,6 +176,22 @@ const SourceLink = styled.a`
   &:hover {
     text-decoration: underline;
   }
+`;
+
+const MetaInfo = styled.div`
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-top: 0.5rem;
+  padding: 0 1rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+`;
+
+const MetaItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
 `;
 
 const EmptyState = styled.div`
@@ -368,19 +384,43 @@ const LoadingDots = styled.div`
   }
 `;
 
-const MetaInfo = styled.div`
-  font-size: 0.8rem;
-  color: #94a3b8;
-  margin-top: 0.5rem;
-  padding: 0 1rem;
+const HistoryDivider = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: #cbd5e1;
+  font-size: 0.85rem;
+  margin: 1rem 0;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #cbd5e1;
+  }
 `;
 
-const Query=()=> {
-  const { queryResult, queryLoading, content, askQuestion } = useStore();
+const TimeFormatter = (dateString) => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now - date) / 1000);
+
+  if (diffInSeconds < 60) return 'Just now';
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+  if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+  
+  return date.toLocaleDateString();
+};
+
+const Query = () => {
+  const { queryResult, queryLoading, content, askQuestion, queryLogs } = useStore();
   const [messages, setMessages] = useState([]);
   const [question, setQuestion] = useState('');
   const [selectedContent, setSelectedContent] = useState('');
   const [topK, setTopK] = useState(5);
+  const [showHistory, setShowHistory] = useState(false);
   const chatEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -390,6 +430,23 @@ const Query=()=> {
   useEffect(() => {
     scrollToBottom();
   }, [messages, queryLoading]);
+
+  // Load history on mount
+  useEffect(() => {
+    if (queryLogs && queryLogs.length > 0 && !showHistory) {
+      setShowHistory(true);
+      // Convert query logs to message format
+      const historyMessages = queryLogs.map(log => ({
+        type: 'history',
+        query: log.query_text,
+        answer: log.answer,
+        sources: log.sources || [],
+        processingTime: log.processing_time_ms,
+        timestamp: log.created_at
+      }));
+      setMessages(historyMessages);
+    }
+  }, [queryLogs, showHistory]);
 
   // Add result to messages when query completes
   useEffect(() => {
@@ -429,17 +486,21 @@ const Query=()=> {
       await askQuestion(question, selectedContent || null, topK);
     } catch (error) {
       toast.error('Failed to get answer');
-      // Remove the loading assistant message on error
       setMessages(prev => prev.filter(msg => msg.type !== 'assistant' || msg.text !== ''));
     }
   };
 
+  const clearHistory = () => {
+    setMessages([]);
+    setShowHistory(false);
+  };
+
   return (
     <PageContainer>
-      <Header>
+      {/* <Header>
         <HeaderTitle>Ask a Question</HeaderTitle>
         <HeaderSubtitle>Query your knowledge base with intelligent search</HeaderSubtitle>
-      </Header>
+      </Header> */}
 
       <ChatContainer>
         {messages.length === 0 ? (
@@ -450,38 +511,124 @@ const Query=()=> {
           </EmptyState>
         ) : (
           <>
-            {messages.map((msg, idx) => (
-              <MessageGroup key={idx}>
-                <Message>
-                  <Avatar isUser={msg.type === 'user'}>
-                    {msg.type === 'user' ? 'YOU' : 'AI'}
-                  </Avatar>
-                  <MessageContent>
-                    <MessageText isUser={msg.type === 'user'}>
-                      {msg.text}
-                    </MessageText>
+            {/* Render history messages with divider */}
+            {messages.filter(msg => msg.type === 'history').length > 0 && (
+              <>
+                <HistoryDivider>Previous Queries</HistoryDivider>
+                {messages.filter(msg => msg.type === 'history').map((msg, idx) => (
+                  <div key={`history-${idx}`}>
+                    {/* User message in history */}
+                    <MessageGroup>
+                      <Message>
+                        <Avatar isUser={true}>YOU</Avatar>
+                        <MessageContent>
+                          <MessageText isUser={true}>{msg.query}</MessageText>
+                          <MetaInfo>
+                            <MetaItem>{TimeFormatter(msg.timestamp)}</MetaItem>
+                          </MetaInfo>
+                        </MessageContent>
+                      </Message>
+                    </MessageGroup>
+
+                    {/* Assistant response in history - Sources only below answer */}
+                    <MessageGroup>
+                      <Message>
+                        <Avatar isUser={false}>AI</Avatar>
+                        <MessageContent>
+                          <MessageText isUser={false}>{msg.answer}</MessageText>
+                        </MessageContent>
+                      </Message>
+                    </MessageGroup>
+
+                    {/* Sources displayed separately below answer */}
                     {msg.sources && msg.sources.length > 0 && (
-                      <SourcesContainer>
-                        {msg.sources.map((source, sourceIdx) => (
-                          <SourceItem key={sourceIdx}>
-                            <SourceTitle>{source.title || `Source ${sourceIdx + 1}`}</SourceTitle>
-                            <SourceSnippet>{source.snippet}</SourceSnippet>
-                            {source.url && (
-                              <SourceLink href={source.url} target="_blank" rel="noopener noreferrer">
-                                View source →
-                              </SourceLink>
-                            )}
-                          </SourceItem>
-                        ))}
-                      </SourcesContainer>
+                      <MessageGroup>
+                        <Message>
+                          <div style={{ width: '32px', flexShrink: 0 }} />
+                          <MessageContent>
+                            <SourcesContainer>
+                              {msg.sources.map((source, sourceIdx) => (
+                                <SourceItem key={sourceIdx}>
+                                  <SourceTitle>{source.title || `Source ${sourceIdx + 1}`}</SourceTitle>
+                                  <SourceSnippet>{source.snippet}</SourceSnippet>
+                                  {source.url && (
+                                    <SourceLink href={source.url} target="_blank" rel="noopener noreferrer">
+                                      View source →
+                                    </SourceLink>
+                                  )}
+                                </SourceItem>
+                              ))}
+                            </SourcesContainer>
+                            <MetaInfo>
+                              <MetaItem>
+                                <FiZap size={14} /> {msg.processingTime}ms
+                              </MetaItem>
+                              <MetaItem>
+                                <FiFileText size={14} /> {msg.sources?.length || 0} sources
+                              </MetaItem>
+                            </MetaInfo>
+                          </MessageContent>
+                        </Message>
+                      </MessageGroup>
                     )}
-                    {msg.processingTime && (
-                      <MetaInfo>Processed in {msg.processingTime}ms</MetaInfo>
-                    )}
-                  </MessageContent>
-                </Message>
-              </MessageGroup>
+                  </div>
+                ))}
+                {messages.filter(msg => msg.type !== 'history').length > 0 && (
+                  <HistoryDivider>New Queries</HistoryDivider>
+                )}
+              </>
+            )}
+
+            {/* Render current messages */}
+            {messages.filter(msg => msg.type !== 'history').map((msg, idx) => (
+              <div key={`msg-${idx}`}>
+                <MessageGroup>
+                  <Message>
+                    <Avatar isUser={msg.type === 'user'}>
+                      {msg.type === 'user' ? 'YOU' : 'AI'}
+                    </Avatar>
+                    <MessageContent>
+                      <MessageText isUser={msg.type === 'user'}>
+                        {msg.text}
+                      </MessageText>
+                    </MessageContent>
+                  </Message>
+                </MessageGroup>
+
+                {/* Sources displayed separately below assistant message only */}
+                {msg.type === 'assistant' && msg.sources && msg.sources.length > 0 && (
+                  <MessageGroup>
+                    <Message>
+                      <div style={{ width: '32px', flexShrink: 0 }} />
+                      <MessageContent>
+                        <SourcesContainer>
+                          {msg.sources.map((source, sourceIdx) => (
+                            <SourceItem key={sourceIdx}>
+                              <SourceTitle>{source.title || `Source ${sourceIdx + 1}`}</SourceTitle>
+                              <SourceSnippet>{source.snippet}</SourceSnippet>
+                              {source.url && (
+                                <SourceLink href={source.url} target="_blank" rel="noopener noreferrer">
+                                  View source →
+                                </SourceLink>
+                              )}
+                            </SourceItem>
+                          ))}
+                        </SourcesContainer>
+                        <MetaInfo>
+                          <MetaItem>
+                            <FiZap size={14} /> {msg.processingTime}ms
+                          </MetaItem>
+                          <MetaItem>
+                            <FiFileText size={14} /> {msg.sources.length} sources
+                          </MetaItem>
+                        </MetaInfo>
+                      </MessageContent>
+                    </Message>
+                  </MessageGroup>
+                )}
+              </div>
             ))}
+
             {queryLoading && (
               <MessageGroup>
                 <Message>
@@ -505,33 +652,6 @@ const Query=()=> {
 
       <InputSection>
         <InputContainer>
-          {/* <SelectContainer>
-            <InputLabel style={{ marginBottom: 0 }}>Filter by Content:</InputLabel>
-            <StyledSelect
-              value={selectedContent}
-              onChange={(e) => setSelectedContent(e.target.value)}
-            >
-              <option value="">All Content</option>
-              {content && content.map(item => (
-                <option key={item.id} value={item.id}>
-                  {item.title}
-                </option>
-              ))}
-            </StyledSelect>
-
-            <TopKSelect
-              value={topK}
-              onChange={(e) => setTopK(parseInt(e.target.value))}
-              title="Number of sources to retrieve"
-            >
-              {[1, 3, 5, 7, 10, 15, 20].map(num => (
-                <option key={num} value={num}>
-                  Top {num}
-                </option>
-              ))}
-            </TopKSelect>
-          </SelectContainer> */}
-
           <InputForm onSubmit={handleSubmit}>
             <TextInput
               placeholder="Ask something about your content..."

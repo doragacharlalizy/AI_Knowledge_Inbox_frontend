@@ -1,5 +1,4 @@
-// src/services/api.js
-// API Service - All backend integration
+
 
 import axios from 'axios';
 
@@ -12,12 +11,8 @@ const api = axios.create({
   },
 });
 
-// ============================================================================
-// CONTENT ENDPOINTS
-// ============================================================================
 
 export const contentAPI = {
-  // List all content
   list: (filters = {}) => {
     const params = new URLSearchParams();
     if (filters.type) params.append('type', filters.type);
@@ -25,45 +20,33 @@ export const contentAPI = {
     return api.get(`/content/?${params}`);
   },
 
-  // Get single content
   get: (id) => api.get(`/content/${id}/`),
 
-  // Create content (note or URL)
   create: (data) => {
     return api.post('/content/', data);
   },
 
-  // Update content
   update: (id, data) => api.put(`/content/${id}/`, data),
 
-  // Delete content
   delete: (id) => api.delete(`/content/${id}/`),
 
-  // Get statistics
   getStats: () => api.get('/content/stats/'),
 };
 
-// ============================================================================
-// CHUNK ENDPOINTS
-// ============================================================================
+
 
 export const chunkAPI = {
-  // List all chunks
   list: (contentId = null) => {
     const params = contentId ? `?content_id=${contentId}` : '';
     return api.get(`/chunks/${params}`);
   },
 
-  // Get single chunk
   get: (id) => api.get(`/chunks/${id}/`),
 };
 
-// ============================================================================
-// QUERY ENDPOINTS
-// ============================================================================
+
 
 export const queryAPI = {
-  // Ask a question
   ask: (question, contentId = null, topK = 5) => {
     const payload = {
       question,
@@ -75,18 +58,14 @@ export const queryAPI = {
     return api.post('/query/ask/', payload);
   },
 
-  // Get query logs
   getLogs: (limit = 20, offset = 0) => {
     return api.get(`/query/logs/?limit=${limit}&offset=${offset}`);
   },
 
-  // Get single query log
   getLog: (id) => api.get(`/query/logs/${id}/`),
 };
 
-// ============================================================================
-// ERROR HANDLING
-// ============================================================================
+
 
 export const handleApiError = (error) => {
   if (error.response) {

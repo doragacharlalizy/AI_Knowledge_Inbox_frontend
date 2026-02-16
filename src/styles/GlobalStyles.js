@@ -1,29 +1,20 @@
-// src/styles/GlobalStyles.js
-// Updated global styled components with professional UI enhancements
-// Maintains your existing theme structure while adding refined styling
 
 import styled from 'styled-components';
 
-// ============================================================================
-// THEME - Enhanced with professional refinements
-// ============================================================================
+
 
 export const theme = {
   colors: {
-    // Primary colors - Indigo palette
     primary: '#6366f1',
     primaryDark: '#4f46e5',
     primaryLight: '#818cf8',
     
-    // Secondary
     secondary: '#ec4899',
     
-    // Semantic colors
     success: '#10b981',
     warning: '#f59e0b',
     error: '#ef4444',
     
-    // Status-specific backgrounds (for badges)
     successBg: '#dcfce7',
     successText: '#166534',
     warningBg: '#fef3c7',
@@ -31,7 +22,6 @@ export const theme = {
     errorBg: '#fee2e2',
     errorText: '#991b1b',
     
-    // Grayscale
     gray50: '#f9fafb',
     gray100: '#f3f4f6',
     gray200: '#e5e7eb',
@@ -43,7 +33,6 @@ export const theme = {
     gray800: '#1f2937',
     gray900: '#111827',
     
-    // Additional utilities
     white: '#ffffff',
     black: '#000000',
   },
@@ -75,9 +64,7 @@ export const theme = {
   },
 };
 
-// ============================================================================
-// GLOBAL STYLES
-// ============================================================================
+
 
 export const GlobalStyles = styled.div`
   * {
@@ -152,9 +139,7 @@ export const GlobalStyles = styled.div`
   }
 `;
 
-// ============================================================================
-// LAYOUT COMPONENTS
-// ============================================================================
+
 
 export const Container = styled.div`
   display: flex;
@@ -204,9 +189,7 @@ export const Content = styled.main`
   background-color: ${(props) => props.theme.colors.gray50};
 `;
 
-// ============================================================================
-// COMMON COMPONENTS - Enhanced with professional styling
-// ============================================================================
+
 
 export const Card = styled.div`
   background-color: ${(props) => props.theme.colors.white};
@@ -427,9 +410,6 @@ export const SuccessMessage = styled.div`
   margin-bottom: ${(props) => props.theme.spacing.lg};
 `;
 
-// ============================================================================
-// ADDITIONAL UTILITY COMPONENTS
-// ============================================================================
 
 export const PageTitle = styled.h1`
   font-size: 2.5rem;

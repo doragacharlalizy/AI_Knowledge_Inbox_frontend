@@ -21,7 +21,6 @@ const MainContent = styled.div`
 const Content = styled.main`
   flex: 1;
   overflow-y: auto;
-  padding: ${props => props.theme.spacing.xl};
   background-color: ${props => props.theme.colors.gray100};
 `;
 
