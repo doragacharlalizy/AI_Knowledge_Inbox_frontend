@@ -264,7 +264,7 @@ const Dashboard=()=> {
         <PageDescription>Overview of your RAG system</PageDescription>
       </HeaderSection>
 
-      <StatsGrid>
+      {/* <StatsGrid>
         {stats.map((stat, idx) => (
           <StatCard 
             key={idx}
@@ -281,7 +281,7 @@ const Dashboard=()=> {
             <StatValue>{stat.value}</StatValue>
           </StatCard>
         ))}
-      </StatsGrid>
+      </StatsGrid> */}
 
       {content && content.length > 0 && (
         <ContentSection>

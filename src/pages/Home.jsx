@@ -29,7 +29,6 @@ const Home=()=> {
   const { fetchContent, fetchStats, fetchQueryLogs } = useStore();
 
   useEffect(() => {
-    // Initial data load
     fetchContent();
     fetchStats();
     fetchQueryLogs();
