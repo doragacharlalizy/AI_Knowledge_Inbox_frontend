@@ -213,3 +213,6 @@ rm -rf node_modules package-lock.json
 npm install
 npm run dev
 ```
+## 🔗 Related Repositories
+
+- **Backend API**: [Turium Backend](https://github.com/doragacharlalizy/Turium_backend) - Django REST API service for content management and query processing
