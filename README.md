@@ -1,4 +1,4 @@
-# Turium Frontend
+# AI Knowledge Inbox
 
 A lightweight React + Vite frontend for managing and querying content chunks. This application provides a user-friendly interface to create and manage content, execute queries, view logs, and monitor basic statistics.
 ## ✨ Features
